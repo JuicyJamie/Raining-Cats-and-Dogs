@@ -4,20 +4,88 @@
         <meta charset="utf-8">
         <title>Raining Cats and Dogs</title>
         <script src="project.js" defer></script>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
+
+            body {
+                font-family: "Oswald", sans-serif;
+                display: flex;
+                flex-direction: row;
+                background-color: #2c2c2c;
+                color: lightblue;
+                font-size: 1.2rem;
+            }
+            aside {
+                margin: 3rem;
+                margin-top: 0;
+            }
+            h1 {
+                font-size: 3rem;
+            }
+            #gameStats {
+                display: flex;
+                flex-direction: column;
+                padding: 1.5rem;
+                font-size: 2rem;
+            }
+            button {
+                font-size: 1.2rem;
+                padding: 2rem;
+                font-family: "Oswald", sans-serif;
+            }
+            .img-container {
+                margin: 1rem;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+            }
+            .img-container span {
+                margin-left: 0.5rem;
+            }
+            #powerUpLegend span {
+                margin-top: 1rem;
+            }
+        </style>
     </head>
     <body onload="onloadSetup()">
-        <svg id="mySVG" width="1000" height="800" style="border: 1px solid black;"></svg>
-        <div id="gameStats">
-            <span id="lives">Lives Left: 3</span>
-            <span id="score">Score: 0</span>
-        </div>
-        <div id="buttons">
-            <button onclick="setup()">
-                Play!
-            </button>
-            <button onclick="reset()">
-                restart
-            </button>
-        </div>
+        <svg id="mySVG" width="1000" height="800" style="border: 2px solid lightblue;"></svg>
+        <aside>
+            <h1>Raining Cats and Dogs!</h1>
+            <p>It's literally raining cats and dogs! Catch them using your basket <br>
+                (controlled by A and D or left and right arrow keys) before they get hurt!</p>
+            <div id="gameStats">
+                <span id="lives">Lives Left: 3</span>
+                <span id="score">Score: 0</span>
+            </div>
+            <div id="buttons">
+                <button onclick="setup()">
+                    Play!
+                </button>
+                <button onclick="reset()">
+                    restart
+                </button>
+                <button onclick="togglePause()">
+                    pause/resume
+                </button>
+                <br>
+                <span>*hint: Press play when the page is first loaded, and restart every time after</span>
+            </div>
+            <div id="powerUpLegend">
+                <span>Power Up Legend:</span>
+                <div class="img-container">
+                    <img src="pictures/powerUp1.png" alt="powerUp1" width="80px">
+                    <span>This heart will give you 1 extra life when collected.</span>
+                </div>
+                <div class="img-container">
+                    <img src="pictures/powerUp2.png" alt="powerUp2" width="80px">
+                    <span>This clock slows down the rate at which objects are falling when collected.</span>
+                </div>
+                <div class="img-container">
+                    <img src="pictures/powerUp3.png" alt="powerUp3" width="80px">
+                    <span>This + sign increases the speed of your basket when collected.</span>
+                </div>
+            </div>
+        </aside>
+
     </body>
 </html>

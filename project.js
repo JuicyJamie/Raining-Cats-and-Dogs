@@ -8,6 +8,7 @@ let objSpeed = 10; //speed of falling object
 let prevObjSpeed = objSpeed;
 let objSpawnRate = 2000; //every 2s
 let lost = false;
+let isPaused = false;
 let maxObjects = 5;
 let powerChance = 15;
 let objectCounter = 0;
@@ -75,8 +76,32 @@ function reset() {
     setup();
 }
 
+function togglePause() {
+    isPaused = !isPaused;
+
+    if (isPaused) {
+        clearInterval(spawnInterval);
+        clearInterval(speedInterval);
+    } else {
+        spawnInterval = setInterval(function() {
+            objSpawnRate -= 100;
+        }, 12000);
+
+        speedInterval = setInterval(function() {
+            objSpeed += 4;
+        }, 24000);
+
+        beginFalling();
+    }
+}
+
+
 async function beginFalling() {
     while (!lost) {
+
+        while (isPaused) {
+            await sleep(100);
+        }
 
         while (activeObjects >= maxObjects) {
             await sleep(100);
@@ -95,9 +120,17 @@ async function beginFalling() {
 
         if (lives <= 0) {
             lost = true;
+            clearInterval(spawnInterval);
+            clearInterval(speedInterval);
+            clearInterval(backgroundInterval);
+            document.getElementById("mySVG").innerHTML = "";
+            document.getElementById("mySVG").innerHTML += "<text x='450' y='400' fill='red' font-size='2rem'>Game Over!</text>";
         }
 
         await sleep(objSpawnRate);
+        while (isPaused) {
+            await sleep(100);
+        }
     }
 
 }
