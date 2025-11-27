@@ -12,41 +12,67 @@ let maxObjects = 5;
 let powerChance = 15;
 let objectCounter = 0;
 let activeObjects = 0;
-// the spawn rate of objects will increase every 12 seconds
-// the speed of the falling objects will increase every 24 seconds
 
+let spawnInterval;
+let speedInterval;
+let backgroundInterval;
 // have a play button that starts a video intro, and then when the video is over the svg will be created and have the onload="start()"
 
 async function sleep(time) {
     return new Promise(resolve => setTimeout(resolve, time));
 }
 
+function onloadSetup() {
+    document.addEventListener("keydown", function(event) {
+    if (event.key.toLowerCase() === "a" || event.key === "ArrowLeft") {
+        if (!(playerX <= 0)) {
+            playerX -= playerSpeed;
+            document.getElementById("player").setAttribute("x", playerX);
+        }
+
+    }
+    else if (event.key.toLowerCase() === "d" || event.key === "ArrowRight") {
+        if (!(playerX >= 700)) { //account for 300px playerWidth
+            playerX += playerSpeed;
+            document.getElementById("player").setAttribute("x", playerX);                
+        }
+
+    }
+});
+}
+
 function setup() {
     loadBackground();
     drawPlayer();
-    setInterval(function() {
+     spawnInterval = setInterval(function() {
         objSpawnRate -= 100;
     }, 12000); //increase spawn rate every 12 seconds
-    setInterval(function() {
+    speedInterval = setInterval(function() {
         objSpeed += 4;
+        objSpeed = Math.max(objSpeed, 1);
     }, 24000); //increase falling object speed every 24s
-    document.addEventListener("keydown", function(event) {
-        if (event.key.toLowerCase() === "a" || event.key === "ArrowLeft") {
-            if (!(playerX <= 0)) {
-                playerX -= playerSpeed;
-                document.getElementById("player").setAttribute("x", playerX);
-            }
-
-        }
-        else if (event.key.toLowerCase() === "d" || event.key === "ArrowRight") {
-            if (!(playerX >= 700)) { //account for 300px playerWidth
-                playerX += playerSpeed;
-                document.getElementById("player").setAttribute("x", playerX);                
-            }
-
-        }
-    });
     beginFalling();
+}
+
+function reset() {
+    clearInterval(spawnInterval);
+    clearInterval(speedInterval);
+    clearInterval(backgroundInterval);
+    document.getElementById("lives").innerHTML = "Lives Left: 3";
+    document.getElementById("score").innerHTML = "Score: 0";
+    document.getElementById("mySVG").innerHTML = "";
+    lost = false;
+    lives = 3;
+    score = 0;
+    playerX = 350;
+    playerY = 650;
+    playerSpeed = 20;
+    objSpeed = 10;
+    prevObjSpeed = objSpeed;
+    objSpawnRate = 2000;
+    activeObjects = 0;
+    objectCounter = 0;
+    setup();
 }
 
 async function beginFalling() {
@@ -67,8 +93,13 @@ async function beginFalling() {
             spawnObject(powerImg, randomX(), createID(), objSpeed - (objSpeed/2));
         }
 
+        if (lives <= 0) {
+            lost = true;
+        }
+
         await sleep(objSpawnRate);
     }
+
 }
 
 function getRandomObject(isPowerUp=false) {
@@ -110,33 +141,38 @@ async function spawnObject(imgURL, startX, id, speed) {
     document.getElementById("mySVG").innerHTML += "<image id='" + id + "' x='" + startX + "' y='0' height='75' width='75' href='" + imgURL + "'/>";
 
     for (let i = 0; i <= 750; i+=speed) {
+        speed = Math.max(speed, 1);
         if (document.getElementById(id)) {
             document.getElementById(id).setAttribute("y", i);
             await sleep(20);
             if (i >= 750 && ((startX + 38) <= playerX || (startX + 38) >= (playerX + 300)) && !document.getElementById(id).getAttribute("href").includes("powerUp")) {
                 lives --;
-                console.log("lives: " + lives);
+                // console.log("lives: " + lives);
+                document.getElementById("lives").innerHTML = "Lives Left: " + lives;
                 document.getElementById(id).outerHTML = "";
                 activeObjects --;            
             }
             else if (i >= 650 && (startX + 38) >= playerX && (startX + 38) <= (playerX + 300) && !document.getElementById(id).getAttribute("href").includes("powerUp")){
                 score ++;
-                console.log("score: "+ score);
+                // console.log("score: "+ score);
+                document.getElementById("score").innerHTML = "Score: " + score;
                 document.getElementById(id).outerHTML = "";
                 activeObjects --;
             }
             else if (i >=650 && (startX + 38) >= playerX && (startX + 38) <= (playerX + 300) && document.getElementById(id).getAttribute("href").includes("powerUp")){
                 if (document.getElementById(id).getAttribute("href").includes("powerUp1")) {
                     lives ++;
+                    document.getElementById("lives").innerHTML = "Lives Left: " + lives;
                     document.getElementById(id).outerHTML = "";
                     activeObjects --;
-                    console.log("extra life: " + lives);                    
+                    // console.log("extra life: " + lives);                    
                 }
                 else if (document.getElementById(id).getAttribute("href").includes("powerUp2")) {
                     if (!timeSlowActive) {
                         timeSlowActive = true;
                         prevObjSpeed = objSpeed;
                         objSpeed -= (objSpeed/2);
+                        objSpeed = Math.max(objSpeed, 1);
                         setTimeout(resetState, 5000);
                         document.getElementById(id).outerHTML = "";
                         activeObjects --;
@@ -149,7 +185,7 @@ async function spawnObject(imgURL, startX, id, speed) {
                     playerSpeed += 30;
                     document.getElementById(id).outerHTML = "";
                     activeObjects --;
-                    console.log("faster basket: " + playerSpeed);                    
+                    console.log("faster basket: " + playerSpeed);                
                     setTimeout(resetState, 5000);
                 }
             }
@@ -183,7 +219,7 @@ function loadBackground() {
     document.getElementById("mySVG").innerHTML += "<image id='background1' x='0' y='0' height='800' width='2000' href='pictures/background.png'/>";
     document.getElementById("mySVG").innerHTML += "<image id='background2' x='" + bgWidth + "' y='0' height='800' width='2000' href='pictures/background.png'/>";
 
-    setInterval(function() {
+     backgroundInterval = setInterval(function() {
         scrollX -= scrollSpeed; //move in negative to go from right to left
 
         if (scrollX <= -bgWidth) {

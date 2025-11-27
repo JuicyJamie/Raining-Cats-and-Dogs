@@ -5,7 +5,19 @@
         <title>Raining Cats and Dogs</title>
         <script src="project.js" defer></script>
     </head>
-    <body onload="setup()">
+    <body onload="onloadSetup()">
         <svg id="mySVG" width="1000" height="800" style="border: 1px solid black;"></svg>
+        <div id="gameStats">
+            <span id="lives">Lives Left: 3</span>
+            <span id="score">Score: 0</span>
+        </div>
+        <div id="buttons">
+            <button onclick="setup()">
+                Play!
+            </button>
+            <button onclick="reset()">
+                restart
+            </button>
+        </div>
     </body>
 </html>
