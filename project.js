@@ -6,7 +6,7 @@ let playerSpeed = 20;
 let score = 0;
 let objSpeed = 10; //speed of falling object
 let prevObjSpeed = objSpeed;
-let objSpawnRate = 1500; //every 1.5s
+let objSpawnRate = 2000; //every 2s
 let lost = false;
 let maxObjects = 5;
 let powerChance = 15;
@@ -14,7 +14,6 @@ let objectCounter = 0;
 let activeObjects = 0;
 // the spawn rate of objects will increase every 12 seconds
 // the speed of the falling objects will increase every 24 seconds
-// the background will move from A to B in 12 seconds
 
 // have a play button that starts a video intro, and then when the video is over the svg will be created and have the onload="start()"
 
@@ -23,7 +22,14 @@ async function sleep(time) {
 }
 
 function setup() {
+    loadBackground();
     drawPlayer();
+    setInterval(function() {
+        objSpawnRate -= 100;
+    }, 12000); //increase spawn rate every 12 seconds
+    setInterval(function() {
+        objSpeed += 4;
+    }, 24000); //increase falling object speed every 24s
     document.addEventListener("keydown", function(event) {
         if (event.key.toLowerCase() === "a" || event.key === "ArrowLeft") {
             if (!(playerX <= 0)) {
@@ -100,26 +106,26 @@ function createID() {
 
 async function spawnObject(imgURL, startX, id, speed) {
     activeObjects ++;
-
+    let timeSlowActive = false;
     document.getElementById("mySVG").innerHTML += "<image id='" + id + "' x='" + startX + "' y='0' height='75' width='75' href='" + imgURL + "'/>";
 
-    for (let i = 0; i < 750; i+=speed) {
+    for (let i = 0; i <= 750; i+=speed) {
         if (document.getElementById(id)) {
             document.getElementById(id).setAttribute("y", i);
             await sleep(20);
-            if (i >= 700 && ((startX + 38) <= playerX || (startX + 38) >= (playerX + 300)) && !document.getElementById(id).getAttribute("href").includes("powerUp")) {
+            if (i >= 750 && ((startX + 38) <= playerX || (startX + 38) >= (playerX + 300)) && !document.getElementById(id).getAttribute("href").includes("powerUp")) {
                 lives --;
                 console.log("lives: " + lives);
                 document.getElementById(id).outerHTML = "";
                 activeObjects --;            
             }
-            else if (i >= 700 && (startX + 38) >= playerX && (startX + 38) <= (playerX + 300) && !document.getElementById(id).getAttribute("href").includes("powerUp")){
+            else if (i >= 650 && (startX + 38) >= playerX && (startX + 38) <= (playerX + 300) && !document.getElementById(id).getAttribute("href").includes("powerUp")){
                 score ++;
                 console.log("score: "+ score);
                 document.getElementById(id).outerHTML = "";
                 activeObjects --;
             }
-            else if (i >= 700 && (startX + 38) >= playerX && (startX + 38) <= (playerX + 300) && document.getElementById(id).getAttribute("href").includes("powerUp")){
+            else if (i >=650 && (startX + 38) >= playerX && (startX + 38) <= (playerX + 300) && document.getElementById(id).getAttribute("href").includes("powerUp")){
                 if (document.getElementById(id).getAttribute("href").includes("powerUp1")) {
                     lives ++;
                     document.getElementById(id).outerHTML = "";
@@ -127,20 +133,27 @@ async function spawnObject(imgURL, startX, id, speed) {
                     console.log("extra life: " + lives);                    
                 }
                 else if (document.getElementById(id).getAttribute("href").includes("powerUp2")) {
-                    prevObjSpeed = objSpeed;
-                    objSpeed -= (objSpeed/2);
-                    setTimeout(resetState, 5000);
-                    document.getElementById(id).outerHTML = "";
-                    activeObjects --;
-                    console.log("slower objects: " + objSpeed);                    
+                    if (!timeSlowActive) {
+                        timeSlowActive = true;
+                        prevObjSpeed = objSpeed;
+                        objSpeed -= (objSpeed/2);
+                        setTimeout(resetState, 5000);
+                        document.getElementById(id).outerHTML = "";
+                        activeObjects --;
+                        console.log("slower objects: " + objSpeed);
+                        timeSlowActive = false;                      
+                    }
+                   
                 }
                 else if (document.getElementById(id).getAttribute("href").includes("powerUp3")) {
                     playerSpeed += 30;
+                    document.getElementById(id).outerHTML = "";
+                    activeObjects --;
                     console.log("faster basket: " + playerSpeed);                    
                     setTimeout(resetState, 5000);
                 }
             }
-            else if (i >= 700 && ((startX + 38) <= playerX || (startX + 38) >= (playerX + 300)) && document.getElementById(id).getAttribute("href").includes("powerUp")) {
+            else if (i >= 750 && ((startX + 38) <= playerX || (startX + 38) >= (playerX + 300)) && document.getElementById(id).getAttribute("href").includes("powerUp")) {
                 document.getElementById(id).outerHTML = "";
                 activeObjects --;      
             }
@@ -160,4 +173,26 @@ function drawPlayer() {
     if (!document.getElementById("player")) {
         document.getElementById("mySVG").innerHTML += "<image id='player' x='" + playerX + "' y='" + playerY + "' height='150' width='300' href='pictures/basket.png'/>";
     }
+}
+
+function loadBackground() {
+    let bgWidth = 2000;
+    let visibleWidth = 1000;
+    let scrollX = 0;
+    let scrollSpeed = 2 //12px every second    
+    document.getElementById("mySVG").innerHTML += "<image id='background1' x='0' y='0' height='800' width='2000' href='pictures/background.png'/>";
+    document.getElementById("mySVG").innerHTML += "<image id='background2' x='" + bgWidth + "' y='0' height='800' width='2000' href='pictures/background.png'/>";
+
+    setInterval(function() {
+        scrollX -= scrollSpeed; //move in negative to go from right to left
+
+        if (scrollX <= -bgWidth) {
+            scrollX += bgWidth; //reset x
+        }
+
+        document.getElementById("background1").setAttribute("x", scrollX);
+        document.getElementById("background2").setAttribute("x", scrollX + bgWidth);
+
+    }, 20)
+
 }
