@@ -209,7 +209,7 @@ async function spawnObject(imgURL, startX, id, speed) {
                         setTimeout(resetState, 5000);
                         document.getElementById(id).outerHTML = "";
                         activeObjects --;
-                        console.log("slower objects: " + objSpeed);
+                        // console.log("slower objects: " + objSpeed);
                         timeSlowActive = false;                      
                     }
                    
@@ -218,7 +218,7 @@ async function spawnObject(imgURL, startX, id, speed) {
                     playerSpeed += 30;
                     document.getElementById(id).outerHTML = "";
                     activeObjects --;
-                    console.log("faster basket: " + playerSpeed);                
+                    // console.log("faster basket: " + playerSpeed);                
                     setTimeout(resetState, 5000);
                 }
             }
